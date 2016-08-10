@@ -1,49 +1,11 @@
-import geolib from 'geolib';
-import _ from 'lodash';
+const geolib = require('geolib');
+const _ = require('lodash');
+
+const area = require(__dirname + '/../area.json');
 
 class PoPoPoint {
-
-  inside = [];
-
-  restriction = [];
-
-  point = [];
-
-  constructor(inside = [], restriction = [], point = []) {
-    this.inside = inside;
-    this.restriction = restriction;
-    this.point = point;
-  }
-
-  isPointInside(latlng) {
-    return geolib.isPointInside(latlng, this.inside);
-  }
-
-  isFreeZone(latlng) {
-    return !_.find(this.restriction, restriction => {
-      return geolib.isPointInside(latlng, restriction)
-    });
-  }
-
-  findPointByDistance(latlng, distance, limit) {
-    if (!distance) distance = 2000;
-    if (!limit) limit = 2000;
-
-    const results = geolib.orderByDistance(latlng, this.point);
-
-    const index = _.findIndex(results, (result, idx) => {
-      return result.distance > distance || idx >= limit
-    });
-
-    return _.take(results, index === -1 ? limit : index);
-  }
-
-  hasService(latlng) {
-    return this.isPointInside(latlng) && this.isFreeZone(latlng);
-  }
-
-  getServicePoint(latlng) {
-    return this.hasService(latlng) ? [latlng] : this.findPointByDistance(latlng, 500, 10);
+  isInside(latlng) {
+    return _.findKey(area, inside => geolib.isPointInside(latlng, inside)) || false;
   }
 }
 
