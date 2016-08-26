@@ -8,6 +8,7 @@ var geolib = require('geolib');
 var _ = require('lodash');
 
 var area = require(__dirname + '/../area.json');
+var yolk = require(__dirname + '/../yolk.json');
 
 var PoPoPoint = function () {
   function PoPoPoint() {
@@ -17,9 +18,17 @@ var PoPoPoint = function () {
   _createClass(PoPoPoint, [{
     key: 'isInside',
     value: function isInside(latlng) {
-      return _.findKey(area, function (inside) {
+      var isYolk = _.findKey(yolk, function (inside) {
         return geolib.isPointInside(latlng, inside);
-      }) || false;
+      });
+      if (isYolk) return isYolk + ',1';
+
+      var isArea = _.findKey(area, function (inside) {
+        return geolib.isPointInside(latlng, inside);
+      });
+      if (isArea) return isArea + ',0';
+
+      return false;
     }
   }]);
 
